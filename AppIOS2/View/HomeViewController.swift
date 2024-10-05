@@ -14,14 +14,21 @@ class ViewController: UIViewController {
     var dataNotificationViewModel = DataNotificationViewModel()
     var dataUSDAmountViewModel = DataUSDAmountViewModel()
     var dataKHRAmountViewModel = DataKHRAmountViewModel()
+    
+    @IBOutlet weak var scrollView: UIScrollView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        
+   
         initView()
     }
 
     func initView(){
+        setScrollViewPullRefreshSetting()
+        
         dataADBannerViewModel.hideLoading = {
             DispatchQueue.main.async{
                 
@@ -41,6 +48,22 @@ class ViewController: UIViewController {
         dataUSDAmountViewModel.getData(mode: 1)
         dataKHRAmountViewModel.getData(mode: 1)
     }
-
+    
+    //scrollview下拉更新設定
+    func setScrollViewPullRefreshSetting(){
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        scrollView.refreshControl = refreshControl
+        refreshControl.attributedTitle = NSAttributedString(string: "下拉刷新", attributes:[NSAttributedString.Key.foregroundColor: UIColor.blue])
+        refreshControl.tintColor = .blue
+    }
+    @objc func refreshData(){
+        print("112233")
+        DispatchQueue.main.async{
+            sleep(3)
+            self.scrollView.refreshControl?.endRefreshing()
+        }
+    }
+    
 }
 
