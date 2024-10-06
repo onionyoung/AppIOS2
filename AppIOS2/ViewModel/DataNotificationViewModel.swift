@@ -12,12 +12,16 @@ class DataNotificationViewModel{
     var showLoading:(()->())?
     var hideLoading:(()->())?
     var showError:(()->())?
+    var reloadData:(()->())?
+    var requestIsFinish = true
     var requestURLEmpty:URL? = URL(string:"https://willywu0201.github.io/data/emptyNotificationList.json") ?? nil
     var requestURLNotEmpty: URL? = URL(string: "https://willywu0201.github.io/data/notificationList.json") ?? nil
-    
+    var hasNewNotification = false;
     func getData(mode:Int){
+        self.requestIsFinish = false
         showLoading?()
         var url:URL? = nil
+        datas = [DataNotification]()
         if(mode == 1){
             url = requestURLEmpty!
         } else if(mode == 2){
@@ -35,13 +39,16 @@ class DataNotificationViewModel{
                         let List = result["messages"] as? [[String:Any]] ?? []
                         self.setResponseToData(jsonArray: List)
                     }else{
+                        self.requestIsFinish = true
                         self.showError?()
                     }
                 }
                 catch{
+                    self.requestIsFinish = true
                     self.showError?()
                 }
             }else{
+                self.requestIsFinish = true
                 self.showError?()
             }
         }
@@ -53,6 +60,11 @@ class DataNotificationViewModel{
             let updateDateTimeString = json["updateDateTime"] as? String ?? ""
             let title = json["title"] as? String ?? ""
             let message = json["message"] as? String ?? ""
+            
+            if(!status){
+                hasNewNotification = true
+            }
+            
             //檢查資料合格性
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
@@ -69,6 +81,8 @@ class DataNotificationViewModel{
             let item = DataNotification(status: status, updateDateTime: updateDateTime!, title: title, message: message)
             self.datas.append(item)
         }
+        self.requestIsFinish = true
+        reloadData?()
         hideLoading?()
     }
 }

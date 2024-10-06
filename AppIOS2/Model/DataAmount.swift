@@ -9,9 +9,9 @@ import Foundation
 class DataAmount{
     var account: String
     var curr:String
-    var blance:Float
+    var blance:Double
     
-    init(account: String, curr: String, blance: Float) {
+    init(account: String, curr: String, blance: Double) {
         self.account = account
         self.curr = curr
         self.blance = blance

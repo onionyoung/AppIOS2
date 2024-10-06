@@ -12,12 +12,16 @@ class DataFavoriteViewModel{
     var showLoading:(()->())?
     var hideLoading:(()->())?
     var showError:(()->())?
+    var reloadData:(()->())?
     var requestURLEmpty:URL? = URL(string:"https://willywu0201.github.io/data/emptyFavoriteList.json") ?? nil
     var requestURLNotEmpty: URL? = URL(string: "https://willywu0201.github.io/data/favoriteList.json") ?? nil
+    var requestIsFinish = true
     
     func getData(mode:Int){
+        self.requestIsFinish = false
         showLoading?()
         var url:URL? = nil
+        datas = [DataFavorite]()
         if(mode == 1){
             url = requestURLEmpty!
         } else if(mode == 2){
@@ -35,13 +39,16 @@ class DataFavoriteViewModel{
                         let List = result["favoriteList"] as? [[String:Any]] ?? []
                         self.setResponseToData(jsonArray: List)
                     }else{
+                        self.requestIsFinish = true
                         self.showError?()
                     }
                 }
                 catch{
+                    self.requestIsFinish = true
                     self.showError?()
                 }
             }else{
+                self.requestIsFinish = true
                 self.showError?()
             }
         }
@@ -57,6 +64,8 @@ class DataFavoriteViewModel{
             let item = DataFavorite(nickname: nickname, transType: transType)
             self.datas.append(item)
         }
+        self.requestIsFinish = true
+        reloadData?()
         hideLoading?()
     }
 }

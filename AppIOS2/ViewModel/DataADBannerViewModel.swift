@@ -11,9 +11,15 @@ class DataADBannerViewModel{
     var showLoading:(()->())?
     var hideLoading:(()->())?
     var showError:(()->())?
+    var reloadData:(()->())?
+    
     var requestURL:URL? = URL(string:"https://willywu0201.github.io/data/banner.json") ?? nil
+    var requestIsFinish = true
+    
     func getData(){
         showLoading?()
+        requestIsFinish = false
+        datas = [DataADBanner]()
         ApiClient.getDataFromServer(url: requestURL!){ (success, data) in
             if success{
                 do{
@@ -24,15 +30,19 @@ class DataADBannerViewModel{
                     if(msgContent == "0000"){
                         let result = object?["result"] as? [String:Any] ?? [:]
                         let List = result["bannerList"] as? [[String:Any]] ?? []
+                        sleep(1)
                         self.setResponseToData(jsonArray: List)
                     }else{
+                        self.requestIsFinish = true
                         self.showError?()
                     }
                 }
                 catch{
+                    self.requestIsFinish = true
                     self.showError?()
                 }
             }else{
+                self.requestIsFinish = true
                 self.showError?()
             }
         }
@@ -48,6 +58,8 @@ class DataADBannerViewModel{
             let item = DataADBanner(adSeqNo: adSeqNo, linkUrl: linkUrl)
             self.datas.append(item)
         }
+        self.requestIsFinish = true
+        reloadData?()
         hideLoading?()
     }
 }
